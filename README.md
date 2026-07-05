@@ -20,9 +20,6 @@ This is a free, open-source project — feel free to explore the code, use it, m
 - 🗂️ **Custom Tool Paths** — point the app to your own ADB / scrcpy installation folders, or let it fall back to your system PATH
 - 🎨 **Clean, modern UI** — built from scratch in WPF with a custom Material-inspired theme
 
-## 🖼️ Preview
-
-*(add screenshots or a GIF here)*
 
 ## 🚀 Getting Started
 
