@@ -30,7 +30,7 @@
 - Windows 10/11
 - [8.0 NET Desktop Runtime]((https://dotnet.microsoft.com/download/dotnet/8.0))
 - [ADB (Android Platform Tools)](https://developer.android.com/tools/releases/platform-tools)
-- [scrcpy](https://github.com/Genymobile/scrcpy) (опционально, требуется для трансляции экрана)
+- [scrcpy](https://github.com/Genymobile/sпоcrcpy) (опционально, требуется для трансляции экрана)
 
 ### Установка
 1. Скачайте последнюю версию со страницы [Releases](../../releases)
@@ -60,3 +60,9 @@
 
 ## 🙌 Авторы
 Создано **YaTeam**
+
+
+
+
+
+похуй на вайбкодил (https://avatars.mds.yandex.net/i?id=e9204964790fb783ec50d3d29955eea0_sr-4490973-images-thumbs&n=13)
