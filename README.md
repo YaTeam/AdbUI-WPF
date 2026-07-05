@@ -28,7 +28,7 @@ This is a free, open-source project — feel free to explore the code, use it, m
 
 ### Requirements
 - Windows 10/11
-- [.NET Desktop Runtime](https://dotnet.microsoft.com/download/dotnet)
+- [8.0 NET Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [ADB (Android Platform Tools)](https://developer.android.com/tools/releases/platform-tools)
 - [scrcpy](https://github.com/Genymobile/scrcpy) (optional, required for screen mirroring)
 
