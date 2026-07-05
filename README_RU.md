@@ -65,4 +65,4 @@
 
 
 
-похуй на вайбкодил (https://avatars.mds.yandex.net/i?id=e9204964790fb783ec50d3d29955eea0_sr-4490973-images-thumbs&n=13)
+![похуй на вайбкодил](https://avatars.mds.yandex.net/i?id=e9204964790fb783ec50d3d29955eea0_sr-4490973-images-thumbs&n=13)
