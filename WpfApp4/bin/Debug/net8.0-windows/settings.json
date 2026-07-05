@@ -1,0 +1,8 @@
+{
+  "UseCustomToolsDir": false,
+  "CustomAdbDir": "",
+  "CustomScrcpyDir": "",
+  "DeviceRefreshIntervalSeconds": 2,
+  "ConfirmBeforePower": true,
+  "HotCommands": []
+}

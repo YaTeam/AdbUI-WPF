@@ -1,0 +1,133 @@
+﻿<Application x:Class="WpfApp4.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <!-- ===================== Color palette (from original design) ===================== -->
+            <SolidColorBrush x:Key="PrimaryBrush" Color="#004AC6"/>
+            <SolidColorBrush x:Key="PrimaryContainerBrush" Color="#2563EB"/>
+            <SolidColorBrush x:Key="OnPrimaryBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="SecondaryBrush" Color="#505F76"/>
+            <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#D0E1FB"/>
+            <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#54647A"/>
+            <SolidColorBrush x:Key="TertiaryContainerBrush" Color="#BC4800"/>
+            <SolidColorBrush x:Key="BackgroundBrush" Color="#FAF8FF"/>
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#FAF8FF"/>
+            <SolidColorBrush x:Key="SurfaceContainerBrush" Color="#EDEDF9"/>
+            <SolidColorBrush x:Key="SurfaceContainerLowBrush" Color="#F3F3FE"/>
+            <SolidColorBrush x:Key="SurfaceContainerLowestBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="SurfaceContainerHighBrush" Color="#E7E7F3"/>
+            <SolidColorBrush x:Key="SurfaceVariantBrush" Color="#E1E2ED"/>
+            <SolidColorBrush x:Key="OutlineBrush" Color="#737686"/>
+            <SolidColorBrush x:Key="OutlineVariantBrush" Color="#C3C6D7"/>
+            <SolidColorBrush x:Key="OnSurfaceBrush" Color="#191B23"/>
+            <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#434655"/>
+            <SolidColorBrush x:Key="ErrorBrush" Color="#BA1A1A"/>
+            <SolidColorBrush x:Key="GreenBadgeBgBrush" Color="#DCFCE7"/>
+            <SolidColorBrush x:Key="GreenBadgeFgBrush" Color="#15803D"/>
+
+            <!-- ===================== Icon font (built-in, no download needed) ===================== -->
+            <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
+
+            <!-- ===================== Reusable styles ===================== -->
+
+            <Style x:Key="IconTextStyle" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <!-- Flat icon+text nav rail button -->
+            <Style x:Key="NavRailItem" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                <Setter Property="Padding" Value="14,10"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource SurfaceContainerHighBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Pill-shaped quick command button -->
+            <Style x:Key="PillButton" TargetType="Button">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource OutlineVariantBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Margin" Value="0,0,8,0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="16" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource SurfaceContainerBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Square hardware control button (Vol Up / Vol Down) -->
+            <Style x:Key="HwButtonWide" TargetType="Button">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource OutlineVariantBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource SurfaceContainerBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource SurfaceVariantBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Square hardware control button (Menu / Home / Back) -->
+            <Style x:Key="HwButtonSquare" TargetType="Button" BasedOn="{StaticResource HwButtonWide}">
+                <Setter Property="Height" Value="86"/>
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

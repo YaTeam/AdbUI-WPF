@@ -1,0 +1,674 @@
+﻿<Window x:Class="WpfApp4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AdbUI"
+        Height="820" Width="1360"
+        MinHeight="600" MinWidth="1000"
+        Background="{StaticResource BackgroundBrush}"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+
+        <!-- Pretty device ComboBox -->
+        <Style x:Key="DeviceComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleBtn"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Border" Background="{StaticResource SurfaceContainerBrush}"
+                                                BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1"
+                                                CornerRadius="8" Height="36">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Ellipse Grid.Column="0" Width="8" Height="8" Margin="12,0,8,0" VerticalAlignment="Center">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="#4CAF50"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ComboBox}}" Value="{x:Null}">
+                                                                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+
+                                                <ContentPresenter Grid.Column="1" x:Name="ContentSite"
+                                                                  Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  ContentTemplate="{Binding SelectionBoxItemTemplate, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  VerticalAlignment="Center" Margin="0,0,4,0"/>
+
+                                                <TextBlock Grid.Column="2" Text="&#xE70D;" Style="{StaticResource IconTextStyle}"
+                                                           FontSize="10" Foreground="{StaticResource SecondaryBrush}"
+                                                           Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource OutlineVariantBrush}"
+                                        BorderThickness="1" CornerRadius="8" Margin="0,4,0,0"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.2"/>
+                                    </Border.Effect>
+                                    <ScrollViewer Margin="4" MaxHeight="220" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="6"
+                                Padding="{TemplateBinding Padding}" Margin="4,2">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7" Height="7" Fill="#4CAF50" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="12"
+                                           Foreground="{StaticResource OnSurfaceBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource SecondaryContainerBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource PrimaryContainerBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Toolbar button style reused across pages -->
+        <Style x:Key="ToolbarButton" TargetType="Button">
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceContainerBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource OutlineVariantBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource SecondaryContainerBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern rounded checkbox -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border x:Name="Box" Width="18" Height="18" CornerRadius="5"
+                                    BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1.5"
+                                    Background="{StaticResource SurfaceBrush}">
+                                <Path x:Name="CheckMark" Data="M2,7 L6,11 L14,2" Stroke="White" StrokeThickness="2"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="Collapsed" Stretch="Uniform" Margin="3"/>
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Power dropdown menu item style -->
+        <!-- Modern ContextMenu container -->
+        <Style x:Key="PowerContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource OutlineVariantBrush}"
+                        BorderThickness="1" CornerRadius="10" Padding="6">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.18"/>
+                            </Border.Effect>
+                            <StackPanel IsItemsHost="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Power dropdown menu item style -->
+        <Style x:Key="PowerMenuItem" TargetType="MenuItem">
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="8"
+                        Padding="{TemplateBinding Padding}" Margin="2">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentPresenter ContentSource="Icon" VerticalAlignment="Center"
+                                           Margin="2,0,10,0"/>
+                                <ContentPresenter ContentSource="Header" VerticalAlignment="Center"
+                                           TextElement.FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource SecondaryContainerBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top App Bar -->
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE7F8;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource PrimaryBrush}" FontSize="22" Margin="4,0,10,0"/>
+                    <TextBlock Text="AdbUI" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}"/>
+
+                    <ComboBox x:Name="DeviceComboBox"
+                              Style="{StaticResource DeviceComboBoxStyle}"
+                              Width="240" Margin="24,0,8,0" VerticalAlignment="Center"
+                              SelectionChanged="DeviceComboBox_SelectionChanged"/>
+
+                    <Button x:Name="RefreshDevicesButton" Style="{StaticResource ToolbarButton}"
+                            Padding="8" Click="RefreshDevicesButton_Click" ToolTip="Обновить список устройств">
+                        <TextBlock Text="&#xE72C;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource SecondaryBrush}"/>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="AboutButton" Style="{StaticResource NavRailItem}" Padding="8" Margin="0,0,4,0" Click="AboutButton_Click" ToolTip="О программе">
+                        <TextBlock Text="&#xE946;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource SecondaryBrush}"/>
+                    </Button>
+                    <Button x:Name="SettingsButton" Style="{StaticResource NavRailItem}" Padding="8" Click="SettingsButton_Click" ToolTip="Настройки">
+                        <TextBlock Text="&#xE713;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource SecondaryBrush}"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Body -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Nav Rail -->
+            <Border Grid.Column="0" Background="{StaticResource SurfaceContainerLowBrush}"
+                    BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="0,0,1,0">
+                <DockPanel Margin="8,12,8,12">
+                    <StackPanel DockPanel.Dock="Top">
+
+                        <Button x:Name="NavDevicesButton" Style="{StaticResource NavRailItem}"
+                                Background="{StaticResource SecondaryContainerBrush}" Click="NavDevices_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE975;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource PrimaryBrush}"/>
+                                <TextBlock Text="Devices" Margin="12,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="NavLogcatButton" Style="{StaticResource NavRailItem}" Click="NavLogcat_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE756;" Style="{StaticResource IconTextStyle}"/>
+                                <TextBlock Text="Logcat" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="NavProcessesButton" Style="{StaticResource NavRailItem}" Click="NavProcesses_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE9D2;" Style="{StaticResource IconTextStyle}"/>
+                                <TextBlock Text="Processes" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Center content area, 3 pages -->
+            <Grid Grid.Column="1" Margin="24">
+
+                <!-- Devices page (console) -->
+                <Grid x:Name="DevicesPage" Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1" CornerRadius="10"
+                            Margin="0,0,0,16">
+                        <ScrollViewer x:Name="ConsoleScroller" VerticalScrollBarVisibility="Auto" Padding="16">
+                            <StackPanel x:Name="ConsolePanel"/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,0,0,12">
+                        <StackPanel x:Name="QuickCommandsPanel" Orientation="Horizontal">
+
+                            <Button x:Name="BtnAdbDevices" Style="{StaticResource PillButton}" Click="AdbDevicesButton_Click" Tag="adb devices">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE895;" Style="{StaticResource IconTextStyle}" FontSize="13"/>
+                                    <TextBlock Text="adb devices" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="BtnAdbShell" Style="{StaticResource PillButton}" Click="AdbShellButton_Click" Tag="adb shell">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE756;" Style="{StaticResource IconTextStyle}" FontSize="13"/>
+                                    <TextBlock Text="adb shell" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="BtnReboot" Style="{StaticResource PillButton}" Click="RebootButton_Click" Tag="reboot">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE72C;" Style="{StaticResource IconTextStyle}" FontSize="13"/>
+                                    <TextBlock Text="reboot" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="BtnInstallApk" Style="{StaticResource PillButton}" Click="InstallApkButton_Click" Tag="install apk">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE896;" Style="{StaticResource IconTextStyle}" FontSize="13"/>
+                                    <TextBlock Text="install apk" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="BtnPushFile" Style="{StaticResource PillButton}" Click="PushFileButton_Click" Tag="push file">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE898;" Style="{StaticResource IconTextStyle}" FontSize="13"/>
+                                    <TextBlock Text="push file" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1" CornerRadius="10">
+                        <Grid Margin="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="~$" FontFamily="Consolas" FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center" Margin="8,0"/>
+
+                            <TextBox x:Name="CommandInput" Grid.Column="1" BorderThickness="0" Background="Transparent"
+                                     FontFamily="Consolas" FontSize="13" VerticalContentAlignment="Center"
+                                     KeyDown="CommandInput_KeyDown"/>
+
+                            <Button x:Name="RunButton" Grid.Column="2" Content="Run" Click="RunButton_Click"
+                                    Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="Bold"
+                                    Padding="20,8" BorderThickness="0" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="White" TextElement.FontWeight="Bold"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Logcat page -->
+                <Grid x:Name="LogcatPage" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1" CornerRadius="10"
+                            Padding="8" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0" x:Name="LogcatSearchBox" VerticalContentAlignment="Center"
+                                     FontFamily="Consolas" FontSize="12" Padding="8,0"
+                                     TextChanged="LogcatSearchBox_TextChanged"
+                                     ToolTip="Поиск по названию приложения, тегу или тексту строки"/>
+
+                            <Button Grid.Column="1" x:Name="LogcatPauseButton" Content="Пауза" Style="{StaticResource ToolbarButton}"
+                                    Click="LogcatPauseButton_Click" Margin="8,0,0,0"/>
+
+                            <Button Grid.Column="2" x:Name="LogcatClearButton" Content="Очистить" Style="{StaticResource ToolbarButton}"
+                                    Click="LogcatClearButton_Click" Margin="8,0,0,0"/>
+
+                            <Button Grid.Column="3" x:Name="LogcatRestartButton" Style="{StaticResource ToolbarButton}"
+                                    Click="LogcatRestartButton_Click" Margin="8,0,0,0" ToolTip="Перезапустить logcat">
+                                <TextBlock Text="&#xE72C;" Style="{StaticResource IconTextStyle}"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1" CornerRadius="10">
+                        <ListBox x:Name="LogcatListBox" BorderThickness="0" Background="Transparent" Padding="12">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="11"
+                                               TextWrapping="Wrap" Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+
+                <!-- Processes page -->
+                <Grid x:Name="ProcessesPage" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1" CornerRadius="10"
+                            Padding="10" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE9D2;" Style="{StaticResource IconTextStyle}"
+                                           Foreground="{StaticResource PrimaryBrush}" FontSize="15" Margin="4,0,10,0"/>
+                                <TextBlock Text="Запущенные процессы" VerticalAlignment="Center" FontWeight="Bold" FontSize="13"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="1" x:Name="ProcessesAutoRefreshCheck" Content="Автообновление"
+                                      IsChecked="True" VerticalAlignment="Center" Margin="0,0,16,0"
+                                      Checked="ProcessesAutoRefreshCheck_Changed" Unchecked="ProcessesAutoRefreshCheck_Changed"/>
+
+                            <Button Grid.Column="2" x:Name="ProcessesRefreshButton" Style="{StaticResource ToolbarButton}"
+                                    Click="ProcessesRefreshButton_Click" ToolTip="Обновить">
+                                <TextBlock Text="&#xE72C;" Style="{StaticResource IconTextStyle}"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1" CornerRadius="10">
+                        <DataGrid x:Name="ProcessesGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                                  Background="Transparent" BorderThickness="0" RowHeight="30"
+                                  GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                                  CanUserAddRows="False" CanUserDeleteRows="False"
+                                  PreviewMouseRightButtonDown="ProcessesGrid_PreviewMouseRightButtonDown">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="80"/>
+                                <DataGridTextColumn Header="CPU %" Binding="{Binding CpuDisplay}" Width="80"/>
+                                <DataGridTextColumn Header="RAM (МБ)" Binding="{Binding RamDisplay}" Width="100"/>
+                                <DataGridTextColumn Header="Процесс / Пакет" Binding="{Binding Name}" Width="*"/>
+                            </DataGrid.Columns>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Копировать имя пакета" Click="CopyProcessPackage_Click"/>
+                                    <MenuItem Header="Копировать PID" Click="CopyProcessPid_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+
+            </Grid>
+
+            <!-- Right Sidebar: Device Control -->
+            <Border Grid.Column="2" Background="{StaticResource SurfaceContainerLowestBrush}"
+                    BorderBrush="{StaticResource OutlineVariantBrush}" BorderThickness="1,0,0,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20">
+
+                        <Button x:Name="ViewScreenButton" Click="ViewScreen_Click" Cursor="Hand" Margin="0,0,0,20">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{StaticResource PrimaryContainerBrush}" CornerRadius="14" Padding="0,24">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="&#xE7F4;" Style="{StaticResource IconTextStyle}" Foreground="White" FontSize="30"/>
+                                            <TextBlock Text="View Screen" Foreground="White" FontWeight="Bold" FontSize="18" Margin="0,8,0,0" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="(scrcpy)" Foreground="#DDFFFFFF" FontSize="12" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <TextBlock Text="HARDWARE CONTROLS" FontSize="11" FontWeight="Bold"
+                                   Foreground="{StaticResource SecondaryBrush}" Margin="4,0,0,10"/>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="VolUpButton" Grid.Column="0" Style="{StaticResource HwButtonWide}" Click="HwControl_Click" Tag="24">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE995;" Style="{StaticResource IconTextStyle}"/>
+                                    <TextBlock Text="Vol Up" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="VolDownButton" Grid.Column="2" Style="{StaticResource HwButtonWide}" Click="HwControl_Click" Tag="25">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE993;" Style="{StaticResource IconTextStyle}"/>
+                                    <TextBlock Text="Vol Down" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button x:Name="MenuButton" Grid.Column="0" Style="{StaticResource HwButtonSquare}" Click="HwControl_Click" Tag="82"
+                                    ToolTip="KEYCODE_MENU: не поддерживается большинством современных приложений (Android 3.0+)">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE700;" Style="{StaticResource IconTextStyle}"/>
+                                    <TextBlock Text="MENU" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OutlineBrush}" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="HomeButton" Grid.Column="2" Style="{StaticResource HwButtonSquare}" Click="HwControl_Click" Tag="3">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE80F;" Style="{StaticResource IconTextStyle}"/>
+                                    <TextBlock Text="HOME" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OutlineBrush}" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button x:Name="BackButton" Grid.Column="4" Style="{StaticResource HwButtonSquare}" Click="HwControl_Click" Tag="4">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE72B;" Style="{StaticResource IconTextStyle}"/>
+                                    <TextBlock Text="BACK" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OutlineBrush}" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Border Background="{StaticResource SurfaceContainerBrush}" BorderBrush="{StaticResource OutlineVariantBrush}"
+                                BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Device Info" FontWeight="Bold" FontSize="12" Margin="0,0,0,8"/>
+
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Battery" FontSize="11" Foreground="{StaticResource SecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" x:Name="BatteryText" Text="—" FontSize="11" FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Storage" FontSize="11" Foreground="{StaticResource SecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" x:Name="StorageText" Text="—" FontSize="11" FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="RAM" FontSize="11" Foreground="{StaticResource SecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" x:Name="RamText" Text="—" FontSize="11" FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Android Version" FontSize="11" Foreground="{StaticResource SecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" x:Name="AndroidVersionText" Text="—" FontSize="11" FontWeight="SemiBold"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Power button with dropdown: Reboot / Recovery / Bootloader / Shutdown -->
+                        <Button x:Name="PowerButton" Click="PowerButton_Click" Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border BorderBrush="{StaticResource ErrorBrush}" BorderThickness="1" CornerRadius="10" Padding="0,12">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <TextBlock Text="&#xE7E8;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource ErrorBrush}" FontSize="14"/>
+                                            <TextBlock Text="Питание" Foreground="{StaticResource ErrorBrush}" FontWeight="Bold" FontSize="12" Margin="8,0,4,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="&#xE70D;" Style="{StaticResource IconTextStyle}" Foreground="{StaticResource ErrorBrush}" FontSize="9" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <Button.ContextMenu>
+                                <ContextMenu x:Name="PowerMenu" Placement="Bottom" Style="{StaticResource PowerContextMenuStyle}"
+                 HasDropShadow="False" Focusable="False">
+
+                                    <MenuItem Header="Перезагрузить" Style="{StaticResource PowerMenuItem}" Click="RebootNormal_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Text="&#xE72C;" Style="{StaticResource IconTextStyle}" FontSize="14"
+                           Foreground="{StaticResource PrimaryBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+
+                                    <MenuItem Header="Перезагрузить в Recovery" Style="{StaticResource PowerMenuItem}" Click="RebootRecovery_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Text="&#xE90F;" Style="{StaticResource IconTextStyle}" FontSize="14"
+                           Foreground="{StaticResource PrimaryBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+
+                                    <MenuItem Header="Перезагрузить в Bootloader" Style="{StaticResource PowerMenuItem}" Click="RebootBootloader_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Text="&#xE713;" Style="{StaticResource IconTextStyle}" FontSize="14"
+                           Foreground="{StaticResource PrimaryBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+
+                                    <Separator Background="{StaticResource OutlineVariantBrush}" Margin="6,4"/>
+
+                                    <MenuItem Header="Выключить" Style="{StaticResource PowerMenuItem}"
+                  Foreground="{StaticResource ErrorBrush}" Click="ShutdownDevice_Click">
+                                        <MenuItem.Icon>
+                                            <TextBlock Text="&#xE7E8;" Style="{StaticResource IconTextStyle}" FontSize="14"
+                           Foreground="{StaticResource ErrorBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+        </Grid>
+    </Grid>
+</Window>
