@@ -1,10 +1,12 @@
 # ADB Studio
 
-A modern, lightweight Windows desktop application for managing Android devices through **ADB** and **scrcpy** — no command line required.
+An open-source, modern, lightweight Windows desktop application for managing Android devices through **ADB** and **scrcpy** — no command line required.
 
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-WPF-512BD4)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Open Source](https://img.shields.io/badge/open%20source-%E2%9D%A4-red)
+
+This is a free, open-source project — feel free to explore the code, use it, modify it, and contribute.
 
 ## ✨ Features
 
@@ -54,10 +56,7 @@ A modern, lightweight Windows desktop application for managing Android devices t
 - [scrcpy](https://github.com/Genymobile/scrcpy)
 
 ## 🤝 Contributing
-Pull requests are welcome! Feel free to open an issue for bugs or feature requests.
-
-## 📄 License
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This is an open-source project and contributions are welcome! Feel free to open an issue for bugs or feature requests, or submit a pull request.
 
 ## 🙌 Credits
 Created by **YaTeam**
